@@ -39,7 +39,7 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage>
     with SingleTickerProviderStateMixin {
   late final AnimationController animationController;
-  late final Animation<double> secBrushAnimation;
+  late final Animation<double> animate;
 
   @override
   void initState() {
@@ -47,7 +47,7 @@ class _MyHomePageState extends State<MyHomePage>
     animationController =
         AnimationController(vsync: this, duration: const Duration(seconds: 60));
 
-    secBrushAnimation = Tween<double>(begin: 0.0, end: 2 * pi).animate(
+    animate = Tween<double>(begin: 0.0, end: 2 * pi).animate(
         CurvedAnimation(parent: animationController, curve: Curves.linear));
 
     animationController.repeat();
@@ -73,11 +73,11 @@ class _MyHomePageState extends State<MyHomePage>
       ),
       body: Center(
         child: AnimatedBuilder(
-            animation: secBrushAnimation,
+            animation: animate,
             builder: (context, child) {
               return CustomPaint(
                 size: const Size(300, 300),
-                painter: MyPainter(secBrushAnimation.value),
+                painter: MyPainter(animate.value),
               );
             }),
       ),
@@ -97,36 +97,36 @@ class MyPainter extends CustomPainter {
       ..color = const Color(0xFF414673)
       ..style = PaintingStyle.fill;
 
-    canvas.drawCircle(center, 100, circle);
+    canvas.drawCircle(center, 120, circle);
 
-    Paint paintOutlineCircle = Paint()
-      ..color = const Color(0xFFE6E9FD)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 10;
+    Paint paintOutlineCircle = Paint();
+    paintOutlineCircle.color = const Color(0xFFE6E9FD);
+    paintOutlineCircle.style = PaintingStyle.stroke;
+    paintOutlineCircle.strokeWidth = 10;
 
-    canvas.drawCircle(center, 100, paintOutlineCircle);
+    canvas.drawCircle(center, 120, paintOutlineCircle);
 
-    Paint centerCircle = Paint()
-      ..color = const Color(0xFFE6E9FD)
-      ..style = PaintingStyle.fill;
+    Paint centerCircle = Paint();
+    centerCircle.color = const Color(0xFFE6E9FD);
+    centerCircle.style = PaintingStyle.fill;
 
-    var second = Paint()
-      ..color = const Color(0xFF76A8F4)
-      ..style = PaintingStyle.stroke
-      ..strokeCap = StrokeCap.round
-      ..strokeWidth = 8;
+    var second = Paint();
+    second.color = const Color(0xFFFAB54E);
+    second.style = PaintingStyle.stroke;
+    second.strokeCap = StrokeCap.round;
+    second.strokeWidth = 5;
 
-    var minute = Paint()
-      ..color = const Color(0xFFDC73B9)
-      ..style = PaintingStyle.stroke
-      ..strokeCap = StrokeCap.round
-      ..strokeWidth = 8;
+    var minute = Paint();
+    minute.color = const Color(0xFF6EA0FA);
+    minute.style = PaintingStyle.stroke;
+    minute.strokeCap = StrokeCap.round;
+    minute.strokeWidth = 8;
 
-    var hour = Paint()
-      ..color = Colors.blue
-      ..style = PaintingStyle.stroke
-      ..strokeCap = StrokeCap.round
-      ..strokeWidth = 8;
+    var hour = Paint();
+    hour.color = const Color(0xFFDC73B9);
+    hour.style = PaintingStyle.stroke;
+    hour.strokeCap = StrokeCap.round;
+    hour.strokeWidth = 10;
 
     double secondX = center.dx + 80 * cos(angle - pi / 2);
     double secondY = center.dy + 80 * sin(angle - pi / 2);
@@ -140,7 +140,7 @@ class MyPainter extends CustomPainter {
     canvas.drawLine(center, Offset(secondX, secondY), second);
     canvas.drawLine(center, Offset(minuteX, minuteY), minute);
     canvas.drawLine(center, Offset(hourX, hourY), hour);
-    canvas.drawCircle(center, 20, centerCircle);
+    canvas.drawCircle(center, 15, centerCircle);
   }
 
   @override
