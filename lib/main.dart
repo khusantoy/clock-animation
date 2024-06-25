@@ -1,12 +1,19 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 
 void main() {
   runApp(const MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -29,7 +36,29 @@ class MyHomePage extends StatefulWidget {
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _MyHomePageState extends State<MyHomePage>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController animationController;
+  late final Animation<double> secBrushAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    animationController =
+        AnimationController(vsync: this, duration: const Duration(seconds: 60));
+
+    secBrushAnimation = Tween<double>(begin: 0.0, end: 2 * pi).animate(
+        CurvedAnimation(parent: animationController, curve: Curves.linear));
+
+    animationController.repeat();
+  }
+
+  @override
+  void dispose() {
+    animationController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -43,67 +72,79 @@ class _MyHomePageState extends State<MyHomePage> {
         centerTitle: true,
       ),
       body: Center(
-        child: CustomPaint(
-          size: const Size(300, 300),
-          painter: MyPainter(),
-        ),
+        child: AnimatedBuilder(
+            animation: secBrushAnimation,
+            builder: (context, child) {
+              return CustomPaint(
+                size: const Size(300, 300),
+                painter: MyPainter(secBrushAnimation.value),
+              );
+            }),
       ),
     );
   }
 }
 
 class MyPainter extends CustomPainter {
+  final double angle;
+
+  MyPainter(this.angle);
+
   @override
   void paint(Canvas canvas, Size size) {
-    var paintCircle = Paint();
-    paintCircle.color = const Color(0xFF414673);
-    paintCircle.style = PaintingStyle.fill;
+    var center = Offset(size.width / 2, size.height / 2);
+    Paint circle = Paint()
+      ..color = const Color(0xFF414673)
+      ..style = PaintingStyle.fill;
 
-    canvas.drawCircle(
-        Offset(size.width / 2, size.height / 2), 120, paintCircle);
+    canvas.drawCircle(center, 100, circle);
 
-    var paintOutlineCircle = Paint();
-    paintOutlineCircle.color = Colors.white;
-    paintOutlineCircle.style = PaintingStyle.stroke;
-    paintOutlineCircle.strokeWidth = 13;
+    Paint paintOutlineCircle = Paint()
+      ..color = const Color(0xFFE6E9FD)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 10;
 
-    canvas.drawCircle(
-        Offset(size.width / 2, size.height / 2), 120, paintOutlineCircle);
+    canvas.drawCircle(center, 100, paintOutlineCircle);
 
-    var centerCircle = Paint();
-    centerCircle.color = Colors.white;
-    centerCircle.style = PaintingStyle.fill;
+    Paint centerCircle = Paint()
+      ..color = const Color(0xFFE6E9FD)
+      ..style = PaintingStyle.fill;
 
-    canvas.drawCircle(
-        Offset(size.width / 2, size.height / 2), 15, centerCircle);
+    var second = Paint()
+      ..color = const Color(0xFF76A8F4)
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round
+      ..strokeWidth = 8;
 
-    var secund = Paint();
-    secund.color = const Color(0xFFFAB64B);
-    secund.style = PaintingStyle.stroke;
-    secund.strokeWidth = 10;
-    secund.strokeCap = StrokeCap.round;
+    var minute = Paint()
+      ..color = const Color(0xFFDC73B9)
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round
+      ..strokeWidth = 8;
 
-    final path = Path();
-    path.moveTo(size.width / 2, size.height / 2);
-    path.lineTo(size.width / 2, size.height / 2 - 80);
+    var hour = Paint()
+      ..color = Colors.blue
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round
+      ..strokeWidth = 8;
 
-    canvas.drawPath(path, secund);
+    double secondX = center.dx + 80 * cos(angle - pi / 2);
+    double secondY = center.dy + 80 * sin(angle - pi / 2);
 
-    var minute = Paint();
-    minute.color = const Color(0xFF6FA5F5);
-    minute.style = PaintingStyle.stroke;
-    minute.strokeWidth = 10;
-    minute.strokeCap = StrokeCap.round;
+    double minuteX = center.dx + 70 * cos((angle / 60 * 2 * pi) - pi / 2);
+    double minuteY = center.dy + 70 * sin((angle / 60 * 2 * pi) - pi / 2);
 
-    final path2 = Path();
-    path.moveTo(size.width / 2, size.height / 2);
-    path.lineTo(size.width, 0);
+    double hourX = center.dx + 60 * cos((angle / 3600 * 2 * pi) - pi / 2);
+    double hourY = center.dy + 60 * sin((angle / 3600 * 2 * pi) - pi / 2);
 
-    canvas.drawPath(path2, minute);
+    canvas.drawLine(center, Offset(secondX, secondY), second);
+    canvas.drawLine(center, Offset(minuteX, minuteY), minute);
+    canvas.drawLine(center, Offset(hourX, hourY), hour);
+    canvas.drawCircle(center, 20, centerCircle);
   }
 
   @override
-  bool shouldRepaint(covariant MyPainter oldDelegate) {
-    return false;
+  bool shouldRepaint(covariant CustomPainter oldDelegate) {
+    return true;
   }
 }
